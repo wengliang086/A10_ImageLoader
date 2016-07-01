@@ -36,18 +36,19 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private GridView gridView;
+    private List<String> mImgs;
     private ImageAdapter imageAdapter;
 
     private RelativeLayout bottomLayout;
     private TextView dirName;
     private TextView dirCount;
 
-    private ProgressDialog progressDialog;
-    private int mMaxCount;
     private File mCurrentDir;
+    private int mMaxCount;
+
     private List<FolderBean> mFolderBeans = new ArrayList<>();
-    private List<String> mImgs;
-    private List<String> mImgPaths = new ArrayList<>();
+
+    private ProgressDialog progressDialog;
 
     Handler mHandler = new Handler() {
         @Override
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri mImgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 ContentResolver cr = MainActivity.this.getContentResolver();
 
-                String selection = MediaStore.Images.Media.MIME_TYPE + " = ? or" + MediaStore.Images.Media.MIME_TYPE + " = ? ";
+                String selection = MediaStore.Images.Media.MIME_TYPE + " = ? or " + MediaStore.Images.Media.MIME_TYPE + " = ? ";
                 String[] selectionArgs = {"image/jpeg", "image/png"};
                 Cursor cursor = cr.query(mImgUri, null, selection, selectionArgs, MediaStore.Images.Media.DATE_MODIFIED);
 
@@ -176,17 +177,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return mImgPaths.size();
+            return mImgs.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return mImgPaths.get(i);
+            return mImgs.get(i);
         }
 
         @Override
         public long getItemId(int i) {
-            return 0;
+            return i;
         }
 
         @Override
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
             viewHolder.imageView.setImageResource(R.mipmap.ic_launcher);
             viewHolder.button.setImageResource(R.mipmap.ic_launcher);
 
-            ImageLoader.getInstance().loadImage(dirPath + "/" + mImgPaths.get(i), viewHolder.imageView);
+            ImageLoader.getInstance().loadImage(dirPath + "/" + mImgs.get(i), viewHolder.imageView);
             return view;
         }
 
