@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Object getItem(int i) {
-            return mImgs.get(i);
+            return mImgs.get(i) ;
         }
 
         @Override
