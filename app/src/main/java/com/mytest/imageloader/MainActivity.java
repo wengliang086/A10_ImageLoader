@@ -10,7 +10,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.GridView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private ListImageDirPopupWindow dirPopupWindow;
+
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -60,7 +65,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "未扫描到任何图片", Toast.LENGTH_SHORT).show();
             return;
         }
-        mImgs = Arrays.asList(mCurrentDir.list());
+        mImgs = Arrays.asList(mCurrentDir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String fileName) {
+                if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png")) {
+                    return true;
+                }
+                return false;
+            }
+        }));
         imageAdapter = new ImageAdapter(this, mImgs, mCurrentDir.getAbsolutePath());
         gridView.setAdapter(imageAdapter);
 
@@ -76,10 +89,68 @@ public class MainActivity extends AppCompatActivity {
         initView();
         initData();
         initEvent();
+
+        initDirPopupWindow();
+    }
+
+    private void initDirPopupWindow() {
+        dirPopupWindow = new ListImageDirPopupWindow(this, mFolderBeans);
+        dirPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                lightOn();
+            }
+        });
+        dirPopupWindow.setOnDirSelectedListener(new ListImageDirPopupWindow.OnDirSelectedListener() {
+            @Override
+            public void onSelected(FolderBean folderBean) {
+                mCurrentDir = new File(folderBean.getDir());
+                mImgs = Arrays.asList(mCurrentDir.list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File file, String fileName) {
+                        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }));
+                imageAdapter = new ImageAdapter(MainActivity.this, mImgs, mCurrentDir.getAbsolutePath());
+                gridView.setAdapter(imageAdapter);
+
+                dirCount.setText(folderBean.getCount() + "");
+                dirName.setText(folderBean.getName());
+                dirPopupWindow.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 内容区域变亮
+     */
+    private void lightOn() {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 1.0f;
+        getWindow().setAttributes(lp);
+    }
+
+    /**
+     * 内容区域变暗
+     */
+    private void lightDark() {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.3f;
+        getWindow().setAttributes(lp);
     }
 
     private void initEvent() {
-
+        bottomLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dirPopupWindow.setAnimationStyle(R.style.dir_popupwindow_anim);
+                dirPopupWindow.showAsDropDown(bottomLayout, 0, 0);
+                lightDark();
+            }
+        });
     }
 
     /**
