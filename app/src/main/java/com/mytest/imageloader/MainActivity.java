@@ -2,7 +2,6 @@ package com.mytest.imageloader;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,19 +10,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mytest.imageloader.bean.FolderBean;
-import com.mytest.imageloader.util.ImageLoader;
+import com.mytest.imageloader.bean.ImageAdapter;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -161,58 +154,4 @@ public class MainActivity extends AppCompatActivity {
         dirCount = (TextView) findViewById(R.id.id_dir_count);
     }
 
-    private class ImageAdapter extends BaseAdapter {
-
-        private Context context;
-        private List<String> mDatas;
-        private String dirPath;
-        private LayoutInflater inflater;
-
-        public ImageAdapter(Context context, List<String> mDatas, String dirPath) {
-            this.context = context;
-            this.mDatas = mDatas;
-            this.dirPath = dirPath;
-            inflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public int getCount() {
-            return mImgs.size();
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return mImgs.get(i) ;
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            ViewHolder viewHolder = null;
-            if (view == null) {
-                view = inflater.inflate(R.layout.item_gridview, viewGroup);
-                viewHolder = new ViewHolder();
-                viewHolder.imageView = (ImageView) view.findViewById(R.id.id_item_image);
-                viewHolder.button = (ImageButton) view.findViewById(R.id.id_item_select);
-                view.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) view.getTag();
-            }
-            // 重置状态
-            viewHolder.imageView.setImageResource(R.mipmap.ic_launcher);
-            viewHolder.button.setImageResource(R.mipmap.ic_launcher);
-
-            ImageLoader.getInstance().loadImage(dirPath + "/" + mImgs.get(i), viewHolder.imageView);
-            return view;
-        }
-
-        private class ViewHolder {
-            ImageView imageView;
-            ImageButton button;
-        }
-    }
 }
